@@ -22,10 +22,11 @@ const COLUMNS = [
 
 export default function MonthlyForm() {
     // ইউজার আইডেন্টিফিকেশন স্টেট
-    const [userId, setUserId] = useState(null);
+    const [userId, setUserId] = useState(null); // এখানে শুধু মোবাইল নাম্বারই থাকবে
     const [isIdentified, setIsIdentified] = useState(false);
     const [mobileInput, setMobileInput] = useState("");
     const [pinInput, setPinInput] = useState("");
+    const [loginLoading, setLoginLoading] = useState(false); // লগইন বাটন লোডিং
 
     // ফর্ম এবং ডাটা স্টেট
     const [year, setYear] = useState(new Date().getFullYear());
@@ -44,19 +45,50 @@ export default function MonthlyForm() {
         }
     }, []);
 
-    // মোবাইল ও পিন দিয়ে লগইন করার ফাংশন
-    const handleLogin = (e) => {
+    // মোবাইল ও পিন দিয়ে লগইন/রেজিস্টার করার ফাংশন
+    const handleLogin = async (e) => {
         e.preventDefault();
         const cleanMobile = mobileInput.replace(/\D/g, ''); // শুধু সংখ্যা রাখবে
+
         if (cleanMobile.length < 11 || pinInput.length < 4) {
             alert("সঠিক মোবাইল নাম্বার (১১ ডিজিট) এবং পিন (কমপক্ষে ৪ ডিজিট) দিন।");
             return;
         }
-        // ইউনিক আইডি তৈরি (যেমন: 01712345678_1234)
-        const newUserId = `${cleanMobile}_${pinInput}`;
-        localStorage.setItem("app_user_uid", newUserId);
-        setUserId(newUserId);
-        setIsIdentified(true);
+
+        setLoginLoading(true);
+        try {
+            // ডাটাবেসে এই মোবাইল নাম্বারে পিন আছে কি না চেক করা হচ্ছে
+            const pinSnapshot = await get(ref(db, `users/${cleanMobile}/pin`));
+
+            if (pinSnapshot.exists()) {
+                // নাম্বার পাওয়া গেছে, এখন পিন মেটাচ্ছে কি না দেখবে
+                const savedPin = pinSnapshot.val();
+                if (savedPin === pinInput) {
+                    // পিন মিলে গেছে, লগইন সফল
+                    localStorage.setItem("app_user_uid", cleanMobile);
+                    setUserId(cleanMobile);
+                    setIsIdentified(true);
+                } else {
+                    // পিন মেলে নি
+                    alert("এই মোবাইল নাম্বারে আগে থেকেই একটি একাউন্ট রয়েছে। আপনি ভুল পিন দিয়েছেন!");
+                }
+            } else {
+                // নাম্বার পাওয়া যায়নি, তাই নতুন একাউন্ট তৈরি করে পিন সেভ করা হচ্ছে
+                await set(ref(db, `users/${cleanMobile}`), {
+                    pin: pinInput,
+                    createdAt: new Date().toISOString()
+                });
+
+                localStorage.setItem("app_user_uid", cleanMobile);
+                setUserId(cleanMobile);
+                setIsIdentified(true);
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            alert("নেটওয়ার্কে সমস্যা হচ্ছে, আবার চেষ্টা করুন।");
+        } finally {
+            setLoginLoading(false);
+        }
     };
 
     // লগআউট ফাংশন
@@ -89,7 +121,8 @@ export default function MonthlyForm() {
             setLoading(true);
             try {
                 const docId = `${year}-${month + 1}`;
-                const snapshot = await get(ref(db, `monthlyData/${userId}/${docId}`));
+                // ডাটাবেস পাথ পরিবর্তন: monthlyData এর ভেতরে records ফোল্ডার যুক্ত করা হয়েছে
+                const snapshot = await get(ref(db, `monthlyData/${userId}/records/${docId}`));
                 setFormData(snapshot.exists() ? snapshot.val().days : generateDays(year, month));
             } catch (error) {
                 console.error("Data fetch error:", error);
@@ -111,7 +144,8 @@ export default function MonthlyForm() {
         setSaving(true);
         try {
             const docId = `${year}-${month + 1}`;
-            await set(ref(db, `monthlyData/${userId}/${docId}`), {
+            // ডাটাবেস পাথ পরিবর্তন
+            await set(ref(db, `monthlyData/${userId}/records/${docId}`), {
                 days: formData,
                 savedAt: new Date().toISOString()
             });
@@ -125,41 +159,49 @@ export default function MonthlyForm() {
         }
     };
 
-    // ---------------------- লগইন স্ক্রিন ----------------------
+    // ---------------------- রেসপন্সিভ লগইন স্ক্রিন ----------------------
     if (!isIdentified) {
         return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-                <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-100 w-full max-w-sm">
-                    <h2 className="text-xl font-bold text-slate-800 text-center mb-6">প্রবেশ করুন</h2>
-                    <form onSubmit={handleLogin} className="space-y-4">
+            <div className="min-h-screen bg-gradient-to-br from-slate-100 to-emerald-50 flex items-center justify-center p-4 sm:p-6">
+                <div className="bg-white p-8 sm:p-10 rounded-3xl shadow-2xl border border-slate-100 w-full max-w-md">
+                    {/* লোগো বা আইকন */}
+                    <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-inner">
+                        <span className="text-3xl">📋</span>
+                    </div>
+
+                    <h2 className="text-2xl font-bold text-slate-800 text-center mb-1">প্রবেশ করুন</h2>
+                    <p className="text-sm text-slate-500 text-center mb-8">আপনার মোবাইল নাম্বার ও পিন দিন</p>
+
+                    <form onSubmit={handleLogin} className="space-y-5">
                         <div>
-                            <label className="block text-sm font-medium text-slate-600 mb-1">মোবাইল নাম্বার</label>
+                            <label className="block text-sm font-semibold text-slate-600 mb-2">মোবাইল নাম্বার</label>
                             <input
                                 type="tel"
                                 value={mobileInput}
                                 onChange={(e) => setMobileInput(e.target.value)}
                                 placeholder="০১৭XXXXXXXX"
-                                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-slate-700"
+                                className="w-full px-4 py-3.5 text-base border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 text-slate-700 transition-all shadow-sm"
                                 required
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-600 mb-1">ইউনিক পিন কোড</label>
+                            <label className="block text-sm font-semibold text-slate-600 mb-2">ইউনিক পিন কোড</label>
                             <input
                                 type="password"
                                 value={pinInput}
                                 onChange={(e) => setPinInput(e.target.value)}
                                 placeholder="কমপক্ষে ৪ সংখ্যার পিন"
                                 maxLength={10}
-                                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-slate-700"
+                                className="w-full px-4 py-3.5 text-base border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 text-slate-700 transition-all shadow-sm"
                                 required
                             />
                         </div>
                         <button
                             type="submit"
-                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-lg transition-colors"
+                            disabled={loginLoading}
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-60 disabled:active:scale-100 text-white font-bold py-3.5 rounded-xl transition-all text-base shadow-md shadow-emerald-200 mt-2"
                         >
-                            প্রবেশ করুন
+                            {loginLoading ? "যাচাই হচ্ছে..." : "প্রবেশ করুন"}
                         </button>
                     </form>
                 </div>
@@ -197,7 +239,6 @@ export default function MonthlyForm() {
                         <h1 className="text-base sm:text-xl font-bold text-slate-800 whitespace-nowrap">
                             {monthsInBn[month]} {bnNum(year)}
                         </h1>
-                        {/* লগআউট বাটন */}
                         <button
                             onClick={handleLogout}
                             className="text-[11px] sm:text-xs text-red-500 hover:text-red-700 border border-red-200 px-2 py-1 rounded-md hover:bg-red-50 transition-colors"
