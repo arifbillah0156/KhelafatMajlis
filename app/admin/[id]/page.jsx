@@ -274,7 +274,7 @@ export default function AdminUserDetailPage() {
                                     {userName}
                                 </h1>
                                 <p className="text-xs text-slate-400">
-                                    {userBranch} • {bnNum(userId)}
+                                    {userBranch} • {userId}
                                 </p>
                             </div>
                         </div>
