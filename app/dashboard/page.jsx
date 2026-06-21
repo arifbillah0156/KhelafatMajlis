@@ -27,10 +27,13 @@ export default function DashboardPage() {
     const [isClientReady, setIsClientReady] = useState(false);
 
     const [userName, setUserName] = useState("");
-    const [userBranch, setUserBranch] = useState(""); // পরিবর্তন: designation থেকে branch
+    const [userBranch, setUserBranch] = useState("");
+    const [userPin, setUserPin] = useState("");
+
     const [isEditing, setIsEditing] = useState(false);
     const [tempName, setTempName] = useState("");
-    const [tempBranch, setTempBranch] = useState(""); // পরিবর্তন: tempDesignation থেকে tempBranch
+    const [tempBranch, setTempBranch] = useState("");
+    const [tempPin, setTempPin] = useState("");
     const [profileSaving, setProfileSaving] = useState(false);
 
     const [year, setYear] = useState(new Date().getFullYear());
@@ -57,7 +60,8 @@ export default function DashboardPage() {
             if (snap.exists()) {
                 const data = snap.val();
                 setUserName(data.name || "নাম নেই");
-                setUserBranch(data.branch || "শাখা নেই"); // পরিবর্তন: data.designation থেকে data.branch
+                setUserBranch(data.branch || "শাখা নেই");
+                setUserPin(data.pin || "");
             }
         } catch (err) {
             console.error("Profile fetch error", err);
@@ -71,11 +75,23 @@ export default function DashboardPage() {
     }, [userId]);
 
     const handleProfileUpdate = async () => {
+        if (tempPin !== "" && tempPin.length < 4) {
+            setToast({ type: "error", msg: "পিন কমপক্ষে ৪ সংখ্যার হতে হবে" });
+            return;
+        }
+
         setProfileSaving(true);
         try {
-            await update(ref(db, `users/${userId}`), { name: tempName, branch: tempBranch }); // পরিবর্তন: designation থেকে branch
+            const pinToSave = tempPin === "" ? userPin : tempPin;
+
+            await update(ref(db, `users/${userId}`), {
+                name: tempName,
+                branch: tempBranch,
+                pin: pinToSave
+            });
             setUserName(tempName);
             setUserBranch(tempBranch);
+            setUserPin(pinToSave);
             setIsEditing(false);
             setToast({ type: "success", msg: "প্রোফাইল আপডেট হয়েছে" });
         } catch (err) {
@@ -170,18 +186,13 @@ export default function DashboardPage() {
 
             {/* ===== Compact Premium Header ===== */}
             <div className="relative overflow-hidden bg-gradient-to-r from-emerald-800 via-emerald-700 to-green-700 text-white shadow-lg">
-
-                {/* Background Glow */}
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute -top-16 -left-16 w-52 h-52 bg-white/10 rounded-full blur-3xl" />
                     <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-emerald-300/20 rounded-full blur-3xl" />
                 </div>
 
                 <div className="relative z-10 px-4 sm:px-6 py-4">
-
                     <div className="flex items-center justify-center gap-4">
-
-                        {/* Logo */}
                         <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white shadow-lg ring-2 ring-white/30 overflow-hidden flex items-center justify-center flex-shrink-0">
                             <img
                                 src="/Khelafat_Majlis_logo.jpg"
@@ -190,48 +201,28 @@ export default function DashboardPage() {
                             />
                         </div>
 
-                        {/* Title */}
                         <div className="text-left">
-
-                            {/* Mobile */}
                             <div className="md:hidden">
-                                <h1 className="text-xl font-bold leading-tight">
-                                    খেলাফত মজলিস
-                                </h1>
-
-                                <p className="text-sm text-emerald-100 font-medium">
-                                    ঢাকা মহানগরী উত্তর
-                                </p>
+                                <h1 className="text-xl font-bold leading-tight">খেলাফত মজলিস</h1>
+                                <p className="text-sm text-emerald-100 font-medium">ঢাকা মহানগরী উত্তর</p>
                             </div>
 
-                            {/* Desktop */}
                             <div className="hidden md:block">
                                 <h1 className="text-3xl font-extrabold leading-none tracking-wide">
                                     খেলাফত মজলিস
-                                    <span className="text-lg font-medium text-emerald-100">
-                                        , ঢাকা মহানগরী উত্তর
-                                    </span>
+                                    <span className="text-lg font-medium text-emerald-100">, ঢাকা মহানগরী উত্তর</span>
                                 </h1>
                             </div>
 
-                            {/* Badge */}
                             <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 border border-white/20">
-
                                 <span className="relative flex h-2.5 w-2.5">
                                     <span className="absolute inline-flex h-full w-full rounded-full bg-lime-300 animate-ping opacity-70"></span>
                                     <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-lime-300"></span>
                                 </span>
-
-                                <span className="text-[12px] sm:text-[16px] font-semibold tracking-wide mt-[2px]">
-                                    ব্যক্তিগত তৎপরতার রিপোর্ট
-                                </span>
-
+                                <span className="text-[12px] sm:text-[16px] font-semibold tracking-wide mt-[2px]">ব্যক্তিগত তৎপরতার রিপোর্ট</span>
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
             </div>
 
@@ -245,13 +236,29 @@ export default function DashboardPage() {
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                         <input type="text" value={tempName} onChange={(e) => setTempName(e.target.value)} className="text-sm font-bold border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="নাম" />
                                         <input type="text" value={tempBranch} onChange={(e) => setTempBranch(e.target.value)} className="text-sm border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="শাখা" />
+
+                                        {/* পিন ইনপুট type="text" করা হয়েছে যেন ক্লিয়ার দেখায় */}
+                                        <input
+                                            type="text"
+                                            value={tempPin}
+                                            onChange={(e) => setTempPin(e.target.value)}
+                                            className="text-sm border border-slate-300 rounded px-2 py-1 w-full sm:w-auto"
+                                            placeholder="পিন পরিবর্তন করতে চাইলে নতুন পিন দিন"
+                                            maxLength={10}
+                                        />
+
                                         <button onClick={handleProfileUpdate} disabled={profileSaving} className="text-[12px] bg-emerald-100 text-emerald-700 px-3 py-2 rounded-lg font-semibold hover:bg-emerald-200 disabled:opacity-50">
                                             {profileSaving ? "সেভ হচ্ছে..." : "সেভ করুন"}
                                         </button>
                                         <button onClick={() => setIsEditing(false)} className="text-xs text-slate-500 hover:text-slate-700 px-2">বাতিল</button>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 cursor-pointer group" onClick={() => { setTempName(userName); setTempBranch(userBranch); setIsEditing(true); }}>
+                                    <div className="flex items-center gap-2 cursor-pointer group" onClick={() => {
+                                        setTempName(userName);
+                                        setTempBranch(userBranch);
+                                        setTempPin(userPin); // এডিট মুডে ঢোকার সময় আগের পিনটাই ক্লিয়ার করে বসিয়ে দিচ্ছে
+                                        setIsEditing(true);
+                                    }}>
                                         <div>
                                             <h1 className="text-sm sm:text-base font-bold text-slate-800 group-hover:text-emerald-600 transition-colors">{userName}</h1>
                                             <p className="text-[11px] text-slate-500">{userBranch}</p>
