@@ -176,7 +176,7 @@ export default function DashboardPage() {
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                     <input type="text" value={tempName} onChange={(e) => setTempName(e.target.value)} className="text-sm font-bold border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="নাম" />
                                     <input type="text" value={tempDesignation} onChange={(e) => setTempDesignation(e.target.value)} className="text-sm border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="পদবী" />
-                                    <button onClick={handleProfileUpdate} disabled={profileSaving} className="text-xs bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg font-semibold hover:bg-emerald-200 disabled:opacity-50">
+                                    <button onClick={handleProfileUpdate} disabled={profileSaving} className="text-[12px] bg-emerald-100 text-emerald-700 px-3 py-2 rounded-lg font-semibold hover:bg-emerald-200 disabled:opacity-50">
                                         {profileSaving ? "সেভ হচ্ছে..." : "সেভ করুন"}
                                     </button>
                                     <button onClick={() => setIsEditing(false)} className="text-xs text-slate-500 hover:text-slate-700 px-2">বাতিল</button>
@@ -191,7 +191,7 @@ export default function DashboardPage() {
                                 </div>
                             )}
                         </div>
-                        <button onClick={handleLogout} className="text-[11px] sm:text-xs text-red-500 hover:text-red-700 border border-red-200 px-2 py-1 rounded-md hover:bg-red-50 transition-colors whitespace-nowrap ml-2">
+                        <button onClick={handleLogout} className="text-[12px] sm:text-[14px] hover:text-red-700 border border-red-200 px-3 py-2 rounded-md bg-red-600 text-white hover:bg-red-50 transition-colors whitespace-nowrap ml-2">
                             লগআউট
                         </button>
                     </div>
@@ -206,7 +206,7 @@ export default function DashboardPage() {
                         <select value={year} onChange={(e) => setYear(+e.target.value)} className="text-xs sm:text-sm border border-slate-200 rounded-lg px-2 sm:px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
                             {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{bnNum(y)}</option>)}
                         </select>
-                        <button onClick={handleSave} disabled={saving} className="hidden sm:flex text-sm bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg transition-colors font-medium">
+                        <button onClick={handleSave} disabled={saving} className="hidden sm:flex text-[16px] bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg transition-colors font-medium">
                             {saving ? "সেভ হচ্ছে..." : "সেভ করুন"}
                         </button>
                     </div>
