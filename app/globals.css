@@ -13,9 +13,6 @@
   }
 }
 
-html {
-  min-width: 1024px;
-}
 
 body {
   color: var(--foreground);
