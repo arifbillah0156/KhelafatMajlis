@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { db } from "../../firebase"; // আপনার firebase ফাইলের পাথ ঠিক করে নেবেন
+import { db } from "../../firebase";
 import { ref, get, set } from "firebase/database";
 
 export default function AuthPage() {
@@ -16,6 +16,27 @@ export default function AuthPage() {
     const [pinInput, setPinInput] = useState("");
     const [authLoading, setAuthLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+
+    // --- ইউজার লগইন আছে কিনা চেক ---
+    const [checking, setChecking] = useState(true);
+
+    useEffect(() => {
+        const existingUser = localStorage.getItem("app_user_uid");
+        if (existingUser) {
+            router.replace("/dashboard");
+        } else {
+            setChecking(false);
+        }
+    }, [router]);
+
+    // যতক্ষণ চেক চলছে, কিছু রেন্ডার করবো না (ফ্লিকার এড়াতে)
+    if (checking) {
+        return (
+            <div className="min-h-[100dvh] bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 flex items-center justify-center bangla">
+                <div className="w-8 h-8 border-3 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -37,9 +58,8 @@ export default function AuthPage() {
             const userSnapshot = await get(ref(db, `users/${cleanMobile}`));
 
             if (isRegister) {
-                // ------------------- রেজিস্ট্রেশন লজিক -------------------
                 if (userSnapshot.exists()) {
-                    setErrorMsg("এই মোবাইল নাম্বারে আগে থেকেই একাউন্ট রয়েছে। দয়া করে লগইন করুন।");
+                    setErrorMsg("এই মোবাইল নাম্বারে আগে থেকেই একাউন্ট রয়েছে। দয়া করে লগইন করুন।");
                 } else {
                     await set(ref(db, `users/${cleanMobile}`), {
                         name: name,
@@ -48,15 +68,14 @@ export default function AuthPage() {
                         createdAt: new Date().toISOString()
                     });
                     localStorage.setItem("app_user_uid", cleanMobile);
-                    router.push("/dashboard"); // টেবিল পেইজে নিয়ে যাবে
+                    router.push("/dashboard");
                 }
             } else {
-                // ------------------- লগইন লজিক -------------------
                 if (userSnapshot.exists()) {
                     const savedPin = userSnapshot.val().pin;
                     if (savedPin === pinInput) {
                         localStorage.setItem("app_user_uid", cleanMobile);
-                        router.push("/dashboard"); // টেবিল পেইজে নিয়ে যাবে
+                        router.push("/dashboard");
                     } else {
                         setErrorMsg("আপনি ভুল পিন দিয়েছেন!");
                     }
@@ -66,7 +85,7 @@ export default function AuthPage() {
             }
         } catch (error) {
             console.error("Auth error:", error);
-            setErrorMsg("নেটওয়ার্কে সমস্যা হচ্ছে, আবার চেষ্টা করুন।");
+            setErrorMsg("নেটওয়ার্কে সমস্যা হচ্ছে, আবার চেষ্টা করুন।");
         } finally {
             setAuthLoading(false);
         }
@@ -95,7 +114,6 @@ export default function AuthPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* রেজিস্ট্রেশনের সময় এই ফিল্ডগুলো দেখাবে */}
                     {isRegister && (
                         <>
                             <div>
