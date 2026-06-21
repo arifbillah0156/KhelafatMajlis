@@ -1,3 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@100..900&display=swap");
+
+
 @import "tailwindcss";
 
 
@@ -19,4 +22,13 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
   margin: 5px;
+}
+
+.bangla {
+  font-family: "Noto Sans Bengali", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
 }

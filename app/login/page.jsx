@@ -73,7 +73,7 @@ export default function AuthPage() {
     };
 
     return (
-        <div className="relative min-h-[100dvh] bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+        <div className="relative min-h-[100dvh] bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bangla">
             <div className="relative w-full max-w-md bg-white/95 backdrop-blur-sm p-6 sm:p-8 rounded-3xl shadow-2xl shadow-emerald-900/10 border border-white/50">
 
                 {/* ট্যাব বাটন */}
@@ -104,14 +104,14 @@ export default function AuthPage() {
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-slate-600 mb-1">পদবী</label>
-                                <input type="text" value={designation} onChange={(e) => setDesignation(e.target.value)} className="w-full px-4 py-3 text-base border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 text-slate-700" placeholder="যেমন: সভাপতি, সদস্য" required />
+                                <input type="text" value={designation} onChange={(e) => setDesignation(e.target.value)} className="w-full px-4 py-3 text-base border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 text-slate-700" placeholder="যেমন: সদস্য, কর্মী" required />
                             </div>
                         </>
                     )}
 
                     <div>
                         <label className="block text-sm font-semibold text-slate-600 mb-1">মোবাইল নাম্বার</label>
-                        <input type="tel" value={mobileInput} onChange={(e) => setMobileInput(e.target.value)} className="w-full px-4 py-3 text-base border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 text-slate-700" placeholder="০১৭XXXXXXXX" required />
+                        <input type="tel" value={mobileInput} onChange={(e) => setMobileInput(e.target.value)} className="w-full px-4 py-3 text-base border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 text-slate-700" placeholder="017XXXXXXXX" required />
                     </div>
                     <div>
                         <label className="block text-sm font-semibold text-slate-600 mb-1">পিন কোড</label>

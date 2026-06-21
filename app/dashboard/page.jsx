@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { db } from "../../firebase"; // আপনার firebase ফাইলের পাথ ঠিক করে নেবেন
+import { db } from "../../firebase";
 import { ref, get, set, update } from "firebase/database";
 
 const bnNum = (n) => n.toString().replace(/\d/g, d => "০১২৩৪৫৬৭৮৯"[d]);
@@ -23,12 +23,9 @@ const COLUMNS = [
 
 export default function DashboardPage() {
     const router = useRouter();
-
-    // সরাসরি localStorage না ব্যবহার করে State এ রাখা হয়েছে
     const [userId, setUserId] = useState(null);
-    const [isClientReady, setIsClientReady] = useState(false); // হাইড্রেশন এরর ঠিক করার জন্য অ্যাড করা হয়েছে
+    const [isClientReady, setIsClientReady] = useState(false);
 
-    // ইউজার প্রোফাইল স্টেট
     const [userName, setUserName] = useState("");
     const [userDesignation, setUserDesignation] = useState("");
     const [isEditing, setIsEditing] = useState(false);
@@ -36,7 +33,6 @@ export default function DashboardPage() {
     const [tempDesignation, setTempDesignation] = useState("");
     const [profileSaving, setProfileSaving] = useState(false);
 
-    // ফর্ম ডাটা স্টেট
     const [year, setYear] = useState(new Date().getFullYear());
     const [month, setMonth] = useState(new Date().getMonth());
     const [formData, setFormData] = useState([]);
@@ -44,22 +40,16 @@ export default function DashboardPage() {
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState(null);
 
-    // প্রোটেক্টেড রাউট: ক্লায়েন্ট সাইডে এসে চেক করবে ইউজার আছে কি না
     useEffect(() => {
         const savedUserId = localStorage.getItem("app_user_uid");
-
         if (savedUserId) {
             setUserId(savedUserId);
         } else {
-            // ইউজার আইডি না পাওয়া গেলে লগইন পেইজে পাঠিয়ে দেবে
             router.push("/login");
         }
-
-        // ক্লায়েন্ট রেডি বলে মার্ক করা হচ্ছে
         setIsClientReady(true);
     }, []);
 
-    // ইউজারের নাম ও পদবী আনার ফাংশন
     const fetchUserProfile = async () => {
         if (!userId) return;
         try {
@@ -74,21 +64,16 @@ export default function DashboardPage() {
         }
     };
 
-    // ইউজার আইডি সেট হলে প্রোফাইল আনবে
     useEffect(() => {
         if (userId) {
             fetchUserProfile();
         }
     }, [userId]);
 
-    // প্রোফাইল আপডেট করার ফাংশন
     const handleProfileUpdate = async () => {
         setProfileSaving(true);
         try {
-            await update(ref(db, `users/${userId}`), {
-                name: tempName,
-                designation: tempDesignation
-            });
+            await update(ref(db, `users/${userId}`), { name: tempName, designation: tempDesignation });
             setUserName(tempName);
             setUserDesignation(tempDesignation);
             setIsEditing(false);
@@ -101,13 +86,11 @@ export default function DashboardPage() {
         }
     };
 
-    // লগআউট ফাংশন
     const handleLogout = () => {
         localStorage.removeItem("app_user_uid");
         router.push("/login");
     };
 
-    // ডেটা জেনারেট করার ফাংশন
     const generateDays = (y, m) => {
         const daysInMonth = new Date(y, m + 1, 0).getDate();
         return Array.from({ length: daysInMonth }, (_, i) => {
@@ -119,7 +102,6 @@ export default function DashboardPage() {
         });
     };
 
-    // টেবিল ডাটা লোড করা
     useEffect(() => {
         if (!userId) return;
         const fetchData = async () => {
@@ -141,7 +123,6 @@ export default function DashboardPage() {
         setFormData(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
 
-    // টেবিল ডাটা সেভ করা
     const handleSave = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -157,9 +138,6 @@ export default function DashboardPage() {
         }
     };
 
-    // ---------------- রেন্ডারিং এর শুরু ----------------
-
-    // ১. যখন ক্লায়েন্ট চেক হচ্ছে (এটি সার্ভার ও ক্লায়েন্ট উভয়েই একই লোডিং দেখাবে, তাই এরর হবে না)
     if (!isClientReady) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-slate-50">
@@ -168,10 +146,8 @@ export default function DashboardPage() {
         );
     }
 
-    // ২. ক্লায়েন্ট রেডি হলেও ইউজার আইডি না পাওয়া গেলে (রাউট চেঞ্জ হওয়ার আগে পর্যন্ত কিছু না দেখানো)
     if (!userId) return null;
 
-    // ৩. ইউজার আছে কিন্তু টেবিল ডাটা লোড হচ্ছে
     if (loading && formData.length === 0) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-slate-50">
@@ -180,9 +156,8 @@ export default function DashboardPage() {
         );
     }
 
-    // ৪. মূল ইউআই (সব ডাটা লোড হয়ে গেছে)
     return (
-        <div className="min-h-screen bg-slate-50 pb-20 sm:pb-0">
+        <div className="min-h-screen bg-slate-50 pb-4 bangla">
             {toast && (
                 <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-lg text-white text-sm font-medium shadow-lg transition-all ${toast.type === "success" ? "bg-emerald-500" : "bg-red-500"}`}>
                     {toast.msg}
@@ -190,10 +165,8 @@ export default function DashboardPage() {
             )}
 
             {/* Header */}
-            <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+            <div className="bg-white border-b border-slate-200 shadow-sm">
                 <div className="max-w-[1600px] mx-auto px-3 sm:px-6 py-3 space-y-3">
-
-                    {/* ইউজার প্রোফাইল সেকশন */}
                     <div className="flex items-center justify-between">
                         <div>
                             {isEditing ? (
@@ -215,13 +188,11 @@ export default function DashboardPage() {
                                 </div>
                             )}
                         </div>
-
                         <button onClick={handleLogout} className="text-[11px] sm:text-xs text-red-500 hover:text-red-700 border border-red-200 px-2 py-1 rounded-md hover:bg-red-50 transition-colors whitespace-nowrap ml-2">
                             লগআউট
                         </button>
                     </div>
 
-                    {/* মাস ও সেভ বাটন সেকশন */}
                     <div className="flex items-center gap-2 justify-between sm:justify-end">
                         <h2 className="text-base sm:text-xl font-bold text-slate-800 sm:ml-auto">
                             {monthsInBn[month]} {bnNum(year)}
@@ -241,19 +212,13 @@ export default function DashboardPage() {
 
             {/* Table Container */}
             <form onSubmit={handleSave}>
-                <div
-                    className="overflow-x-auto"
-                    style={{
-                        WebkitOverflowScrolling: 'touch',
-                        overflowX: 'auto',
-                        touchAction: 'pan-x'
-                    }}
-                >
+                <div className="overflow-x-auto">
                     <div className="min-w-[850px] max-w-[1600px] mx-auto">
                         <table className="w-full border-collapse">
-                            <thead>
+                            {/* এখানে শুধু thead তে sticky top-0 যুক্ত করা হয়েছে */}
+                            <thead className="sticky top-0 z-30">
                                 <tr className="bg-slate-700 text-white">
-                                    <th className="sticky left-0 z-20 bg-slate-700 text-left px-2 sm:px-4 py-2.5 sm:py-3 w-[60px] sm:w-24 font-semibold border-b border-slate-600 text-xs sm:text-sm">
+                                    <th className="text-left px-2 sm:px-4 py-2.5 sm:py-3 w-[60px] sm:w-24 font-semibold border-b border-slate-600 text-xs sm:text-sm">
                                         তারিখ
                                     </th>
                                     {COLUMNS.map(col => (
@@ -266,7 +231,7 @@ export default function DashboardPage() {
                             <tbody>
                                 {formData.map((day, idx) => (
                                     <tr key={day.id} className={`${idx % 2 === 0 ? "bg-white" : "bg-slate-50/70"} hover:bg-emerald-50/50 transition-colors`}>
-                                        <td className="sticky left-0 z-10 px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-100 bg-inherit">
+                                        <td className="px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-100">
                                             <span className="text-xs sm:text-sm font-semibold text-slate-700">{day.date}</span>
                                             <span className="block text-[10px] sm:text-[11px] text-slate-400 leading-tight">{day.dayName}</span>
                                         </td>
@@ -289,8 +254,12 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Mobile Bottom Save Button */}
-                <div className="sm:hidden sticky bottom-0 bg-white/90 backdrop-blur-md border-t border-slate-200 p-3 text-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-                    <button type="submit" disabled={saving} className="w-full text-sm bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white py-3 rounded-xl transition-colors font-medium">
+                <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 p-3 shadow-lg">
+                    <button
+                        type="submit"
+                        disabled={saving}
+                        className="w-full text-sm bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white py-3 rounded-xl transition-colors font-medium"
+                    >
                         {saving ? "সেভ হচ্ছে..." : "সেভ করুন"}
                     </button>
                 </div>
