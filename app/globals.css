@@ -17,11 +17,13 @@
 }
 
 
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
-  margin: 5px;
+  margin: 0;
+  padding: 0;
 }
 
 .bangla {

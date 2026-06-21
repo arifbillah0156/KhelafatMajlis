@@ -10,15 +10,15 @@ const daysInBn = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'ব
 const monthsInBn = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
 
 const COLUMNS = [
-    { key: "namaz", label: "নামায" },
-    { key: "quran", label: "কোরআন" },
-    { key: "hadith", label: "হাদিস" },
-    { key: "sahitya", label: "সাহিত্য" },
-    { key: "khedmat", label: "খেদমত" },
-    { key: "sangothan", label: "সাংগঠনিক" },
-    { key: "dawat", label: "দাওয়াত" },
-    { key: "rogi", label: "রোগী" },
-    { key: "montobyo", label: "মন্তব্য" },
+    { key: "quranStudy", label: "কোরআন অধ্যয়ন\nসুরা, আয়াত" },
+    { key: "hadithStudy", label: "হাদীস অধ্যয়ন\nসংখ্যা, বিষয়" },
+    { key: "islamicSahitya", label: "ইসলামী সাহিত্য পাঠ\nনাম, পৃষ্ঠা" },
+    { key: "namaz", label: "জামাতে নামাজ কত ওয়াক্ত" },
+    { key: "contact", label: "যোগাযোগ\nসংখ্যা, নাম" },
+    { key: "dawat", label: "দাওয়াত\nকত জন, নাম" },
+    { key: "timeDonation", label: "সময় দান\nকত ঘন্টা" },
+    { key: "socialService", label: "সমাজ সেবা\nকি ধরনের" },
+    { key: "selfCriticism", label: "আত্ম-সমালোচনা\nহ্যা/না" },
 ];
 
 export default function DashboardPage() {
@@ -27,10 +27,10 @@ export default function DashboardPage() {
     const [isClientReady, setIsClientReady] = useState(false);
 
     const [userName, setUserName] = useState("");
-    const [userDesignation, setUserDesignation] = useState("");
+    const [userBranch, setUserBranch] = useState(""); // পরিবর্তন: designation থেকে branch
     const [isEditing, setIsEditing] = useState(false);
     const [tempName, setTempName] = useState("");
-    const [tempDesignation, setTempDesignation] = useState("");
+    const [tempBranch, setTempBranch] = useState(""); // পরিবর্তন: tempDesignation থেকে tempBranch
     const [profileSaving, setProfileSaving] = useState(false);
 
     const [year, setYear] = useState(new Date().getFullYear());
@@ -57,7 +57,7 @@ export default function DashboardPage() {
             if (snap.exists()) {
                 const data = snap.val();
                 setUserName(data.name || "নাম নেই");
-                setUserDesignation(data.designation || "পদবী নেই");
+                setUserBranch(data.branch || "শাখা নেই"); // পরিবর্তন: data.designation থেকে data.branch
             }
         } catch (err) {
             console.error("Profile fetch error", err);
@@ -73,9 +73,9 @@ export default function DashboardPage() {
     const handleProfileUpdate = async () => {
         setProfileSaving(true);
         try {
-            await update(ref(db, `users/${userId}`), { name: tempName, designation: tempDesignation });
+            await update(ref(db, `users/${userId}`), { name: tempName, branch: tempBranch }); // পরিবর্তন: designation থেকে branch
             setUserName(tempName);
-            setUserDesignation(tempDesignation);
+            setUserBranch(tempBranch);
             setIsEditing(false);
             setToast({ type: "success", msg: "প্রোফাইল আপডেট হয়েছে" });
         } catch (err) {
@@ -168,9 +168,71 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            {/* হেডলাইন হেডার */}
-            <div className="bg-emerald-700 text-white text-center py-3 sm:py-4 shadow-md">
-                <h1 className="text-sm sm:text-lg font-bold tracking-wide">খেলাফত মজলিস, ঢাকা মহানগরী উত্তর</h1>
+            {/* ===== Compact Premium Header ===== */}
+            <div className="relative overflow-hidden bg-gradient-to-r from-emerald-800 via-emerald-700 to-green-700 text-white shadow-lg">
+
+                {/* Background Glow */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute -top-16 -left-16 w-52 h-52 bg-white/10 rounded-full blur-3xl" />
+                    <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-emerald-300/20 rounded-full blur-3xl" />
+                </div>
+
+                <div className="relative z-10 px-4 sm:px-6 py-4">
+
+                    <div className="flex items-center justify-center gap-4">
+
+                        {/* Logo */}
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white shadow-lg ring-2 ring-white/30 overflow-hidden flex items-center justify-center flex-shrink-0">
+                            <img
+                                src="/Khelafat_Majlis_logo.jpg"
+                                alt="Logo"
+                                className="w-11 h-11 sm:w-13 sm:h-13 object-contain"
+                            />
+                        </div>
+
+                        {/* Title */}
+                        <div className="text-left">
+
+                            {/* Mobile */}
+                            <div className="md:hidden">
+                                <h1 className="text-xl font-bold leading-tight">
+                                    খেলাফত মজলিস
+                                </h1>
+
+                                <p className="text-sm text-emerald-100 font-medium">
+                                    ঢাকা মহানগরী উত্তর
+                                </p>
+                            </div>
+
+                            {/* Desktop */}
+                            <div className="hidden md:block">
+                                <h1 className="text-3xl font-extrabold leading-none tracking-wide">
+                                    খেলাফত মজলিস
+                                    <span className="text-lg font-medium text-emerald-100">
+                                        , ঢাকা মহানগরী উত্তর
+                                    </span>
+                                </h1>
+                            </div>
+
+                            {/* Badge */}
+                            <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 border border-white/20">
+
+                                <span className="relative flex h-2.5 w-2.5">
+                                    <span className="absolute inline-flex h-full w-full rounded-full bg-lime-300 animate-ping opacity-70"></span>
+                                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-lime-300"></span>
+                                </span>
+
+                                <span className="text-[12px] sm:text-[16px] font-semibold tracking-wide mt-[2px]">
+                                    ব্যক্তিগত তৎপরতার রিপোর্ট
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
             </div>
 
             {/* সাব হেডার */}
@@ -182,23 +244,23 @@ export default function DashboardPage() {
                                 {isEditing ? (
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                         <input type="text" value={tempName} onChange={(e) => setTempName(e.target.value)} className="text-sm font-bold border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="নাম" />
-                                        <input type="text" value={tempDesignation} onChange={(e) => setTempDesignation(e.target.value)} className="text-sm border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="পদবী" />
+                                        <input type="text" value={tempBranch} onChange={(e) => setTempBranch(e.target.value)} className="text-sm border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="শাখা" />
                                         <button onClick={handleProfileUpdate} disabled={profileSaving} className="text-[12px] bg-emerald-100 text-emerald-700 px-3 py-2 rounded-lg font-semibold hover:bg-emerald-200 disabled:opacity-50">
                                             {profileSaving ? "সেভ হচ্ছে..." : "সেভ করুন"}
                                         </button>
                                         <button onClick={() => setIsEditing(false)} className="text-xs text-slate-500 hover:text-slate-700 px-2">বাতিল</button>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 cursor-pointer group" onClick={() => { setTempName(userName); setTempDesignation(userDesignation); setIsEditing(true); }}>
+                                    <div className="flex items-center gap-2 cursor-pointer group" onClick={() => { setTempName(userName); setTempBranch(userBranch); setIsEditing(true); }}>
                                         <div>
                                             <h1 className="text-sm sm:text-base font-bold text-slate-800 group-hover:text-emerald-600 transition-colors">{userName}</h1>
-                                            <p className="text-[11px] text-slate-500">{userDesignation}</p>
+                                            <p className="text-[11px] text-slate-500">{userBranch}</p>
                                         </div>
                                         <svg className="w-4 h-4 text-slate-400 group-hover:text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                     </div>
                                 )}
                             </div>
-                            <button onClick={handleLogout} className="text-[12px] sm:text-[14px] hover:text-red-700 border border-red-200 px-3 py-2 rounded-md bg-red-600 text-white hover:bg-red-50 transition-colors whitespace-nowrap">
+                            <button onClick={handleLogout} className="text-[12px] sm:text-[14px] hover:text-red-700 border border-red-200 px-3 py-2 rounded-md bg-red-600 text-white hover:bg-red-50 transition-colors whitespace-nowrap lg:ml-6">
                                 লগআউট
                             </button>
                         </div>
@@ -222,7 +284,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Table Container */}
-            <form onSubmit={handleSave}>
+            <form onSubmit={handleSave} className="flex justify-center">
                 <div className="overflow-x-auto">
                     <div className="overflow-auto max-h-[80vh]">
                         <table className="w-min border-collapse">
@@ -232,7 +294,10 @@ export default function DashboardPage() {
                                         তারিখ
                                     </th>
                                     {COLUMNS.map(col => (
-                                        <th key={col.key} className=" text-left px-1.5 sm:px-3 py-2.5 sm:py-3 font-semibold border-b border-slate-600 text-xs sm:text-sm break-words">
+                                        <th
+                                            key={col.key}
+                                            className="text-center px-1.5 sm:px-3 py-2.5 sm:py-3 font-semibold border-b border-slate-600 text-xs sm:text-sm whitespace-pre-line"
+                                        >
                                             {col.label}
                                         </th>
                                     ))}
