@@ -69,7 +69,7 @@ export default function LoginPage({ onLoginSuccess }) {
                             type="tel"
                             value={mobileInput}
                             onChange={(e) => setMobileInput(e.target.value)}
-                            placeholder="০১৭XXXXXXXX"
+                            placeholder="017XXXXXXXX"
                             className="w-full px-4 py-3.5 text-base border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 text-slate-700 transition-all shadow-sm"
                             required
                         />

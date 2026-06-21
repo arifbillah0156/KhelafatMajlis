@@ -96,7 +96,11 @@ export default function DashboardPage() {
         return Array.from({ length: daysInMonth }, (_, i) => {
             const d = i + 1;
             const dateObj = new Date(y, m, d);
-            const day = { id: d, date: bnNum(d.toString().padStart(2, '0')), dayName: daysInBn[dateObj.getDay()] };
+            const day = {
+                id: i,
+                date: bnNum(d.toString().padStart(2, '0')),
+                dayName: daysInBn[dateObj.getDay()]
+            };
             COLUMNS.forEach(col => { day[col.key] = ""; });
             return day;
         });
@@ -158,81 +162,83 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20 sm:pb-4 bangla">
-
-            {/* মোবাইলে নিচের বাটনের কারণে লুকানো থাকা ঠিক করতে pb-20 sm:pb-4 করা হয়েছে */}
-
             {toast && (
                 <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-lg text-white text-sm font-medium shadow-lg transition-all ${toast.type === "success" ? "bg-emerald-500" : "bg-red-500"}`}>
                     {toast.msg}
                 </div>
             )}
 
-            {/* Header */}
-            <div className="bg-white border-b border-slate-200 shadow-sm">
-                <div className="max-w-[1600px] mx-auto px-3 sm:px-6 py-3 space-y-3">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            {isEditing ? (
-                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                    <input type="text" value={tempName} onChange={(e) => setTempName(e.target.value)} className="text-sm font-bold border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="নাম" />
-                                    <input type="text" value={tempDesignation} onChange={(e) => setTempDesignation(e.target.value)} className="text-sm border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="পদবী" />
-                                    <button onClick={handleProfileUpdate} disabled={profileSaving} className="text-[12px] bg-emerald-100 text-emerald-700 px-3 py-2 rounded-lg font-semibold hover:bg-emerald-200 disabled:opacity-50">
-                                        {profileSaving ? "সেভ হচ্ছে..." : "সেভ করুন"}
-                                    </button>
-                                    <button onClick={() => setIsEditing(false)} className="text-xs text-slate-500 hover:text-slate-700 px-2">বাতিল</button>
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-2 cursor-pointer group" onClick={() => { setTempName(userName); setTempDesignation(userDesignation); setIsEditing(true); }}>
-                                    <div>
-                                        <h1 className="text-sm sm:text-base font-bold text-slate-800 group-hover:text-emerald-600 transition-colors">{userName}</h1>
-                                        <p className="text-[11px] text-slate-500">{userDesignation}</p>
-                                    </div>
-                                    <svg className="w-4 h-4 text-slate-400 group-hover:text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                                </div>
-                            )}
-                        </div>
-                        <button onClick={handleLogout} className="text-[12px] sm:text-[14px] hover:text-red-700 border border-red-200 px-3 py-2 rounded-md bg-red-600 text-white hover:bg-red-50 transition-colors whitespace-nowrap ml-2">
-                            লগআউট
-                        </button>
-                    </div>
+            {/* হেডলাইন হেডার */}
+            <div className="bg-emerald-700 text-white text-center py-3 sm:py-4 shadow-md">
+                <h1 className="text-sm sm:text-lg font-bold tracking-wide">খেলাফত মজলিস, ঢাকা মহানগরী উত্তর</h1>
+            </div>
 
-                    <div className="flex items-center gap-2 justify-between sm:justify-end">
-                        <h2 className="text-base sm:text-xl font-bold text-slate-800 sm:ml-auto">
-                            {monthsInBn[month]} {bnNum(year)}
-                        </h2>
-                        <select value={month} onChange={(e) => setMonth(+e.target.value)} className="text-xs sm:text-sm border border-slate-200 rounded-lg px-2 sm:px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
-                            {monthsInBn.map((m, i) => <option key={i} value={i}>{m}</option>)}
-                        </select>
-                        <select value={year} onChange={(e) => setYear(+e.target.value)} className="text-xs sm:text-sm border border-slate-200 rounded-lg px-2 sm:px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
-                            {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{bnNum(y)}</option>)}
-                        </select>
-                        <button onClick={handleSave} disabled={saving} className="hidden sm:flex text-[16px] bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg transition-colors font-medium">
-                            {saving ? "সেভ হচ্ছে..." : "সেভ করুন"}
-                        </button>
+            {/* সাব হেডার */}
+            <div className="bg-white border-b border-slate-200 shadow-sm">
+                <div className="max-w-[1600px] mx-auto px-3 sm:px-6 py-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-2">
+                            <div className="flex-1 sm:flex-none">
+                                {isEditing ? (
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                        <input type="text" value={tempName} onChange={(e) => setTempName(e.target.value)} className="text-sm font-bold border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="নাম" />
+                                        <input type="text" value={tempDesignation} onChange={(e) => setTempDesignation(e.target.value)} className="text-sm border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="পদবী" />
+                                        <button onClick={handleProfileUpdate} disabled={profileSaving} className="text-[12px] bg-emerald-100 text-emerald-700 px-3 py-2 rounded-lg font-semibold hover:bg-emerald-200 disabled:opacity-50">
+                                            {profileSaving ? "সেভ হচ্ছে..." : "সেভ করুন"}
+                                        </button>
+                                        <button onClick={() => setIsEditing(false)} className="text-xs text-slate-500 hover:text-slate-700 px-2">বাতিল</button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2 cursor-pointer group" onClick={() => { setTempName(userName); setTempDesignation(userDesignation); setIsEditing(true); }}>
+                                        <div>
+                                            <h1 className="text-sm sm:text-base font-bold text-slate-800 group-hover:text-emerald-600 transition-colors">{userName}</h1>
+                                            <p className="text-[11px] text-slate-500">{userDesignation}</p>
+                                        </div>
+                                        <svg className="w-4 h-4 text-slate-400 group-hover:text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                    </div>
+                                )}
+                            </div>
+                            <button onClick={handleLogout} className="text-[12px] sm:text-[14px] hover:text-red-700 border border-red-200 px-3 py-2 rounded-md bg-red-600 text-white hover:bg-red-50 transition-colors whitespace-nowrap">
+                                লগআউট
+                            </button>
+                        </div>
+
+                        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                            <h2 className="text-base sm:text-xl font-bold text-slate-800">
+                                {monthsInBn[month]} {bnNum(year)}
+                            </h2>
+                            <select value={month} onChange={(e) => setMonth(+e.target.value)} className="text-xs sm:text-sm border border-slate-200 rounded-lg px-2 sm:px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+                                {monthsInBn.map((m, i) => <option key={i} value={i}>{m}</option>)}
+                            </select>
+                            <select value={year} onChange={(e) => setYear(+e.target.value)} className="text-xs sm:text-sm border border-slate-200 rounded-lg px-2 sm:px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+                                {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{bnNum(y)}</option>)}
+                            </select>
+                            <button onClick={handleSave} disabled={saving} className="hidden sm:flex text-[16px] bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg transition-colors font-medium">
+                                {saving ? "সেভ হচ্ছে..." : "সেভ করুন"}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-
-
-
             {/* Table Container */}
             <form onSubmit={handleSave}>
                 <div className="overflow-x-auto">
-                    <div className="overflow-auto max-h-[80vh] ">
-                        <table className="w-full border-collapse">
+                    <div className="overflow-auto max-h-[80vh]">
+                        <table className="w-min border-collapse">
                             <thead className="sticky top-0 z-30 bg-slate-700">
                                 <tr className="bg-slate-700 text-white">
-                                    <th className="text-left px-2 sm:px-4 py-2.5 sm:py-3 w-[60px] sm:w-24 font-semibold border-b border-slate-600 text-xs sm:text-sm">
+                                    <th className="text-left px-2 sm:px-4 py-2.5 sm:py-3 sm:w-24 font-semibold border-b border-slate-600 text-xs sm:text-sm">
                                         তারিখ
                                     </th>
                                     {COLUMNS.map(col => (
-                                        <th key={col.key} className="text-left px-1.5 sm:px-3 py-2.5 sm:py-3 font-semibold border-b border-slate-600 whitespace-nowrap text-xs sm:text-sm">
+                                        <th key={col.key} className=" text-left px-1.5 sm:px-3 py-2.5 sm:py-3 font-semibold border-b border-slate-600 text-xs sm:text-sm break-words">
                                             {col.label}
                                         </th>
                                     ))}
                                 </tr>
                             </thead>
+
                             <tbody>
                                 {formData.map((day, idx) => (
                                     <tr key={day.id} className={`${idx % 2 === 0 ? "bg-white" : "bg-slate-50/70"} hover:bg-emerald-50/50 transition-colors`}>
@@ -246,8 +252,7 @@ export default function DashboardPage() {
                                                     type="text"
                                                     value={day[col.key] || ""}
                                                     onChange={(e) => handleChange(day.id, col.key, e.target.value)}
-                                                    className="w-full text-xs sm:text-sm px-1.5 sm:px-2.5 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 placeholder-slate-300 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all"
-                                                    // placeholder={`${col.label}...`}
+                                                    className="w-max text-xs sm:text-sm px-1.5 sm:px-2.5 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 placeholder-slate-300 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all"
                                                     placeholder={`...`}
                                                 />
                                             </td>
