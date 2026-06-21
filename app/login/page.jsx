@@ -209,7 +209,7 @@ export default function AuthPage() {
                                 value={mobileInput}
                                 onChange={(e) => setMobileInput(e.target.value)}
                                 className="w-full px-4 py-3 text-base border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 text-slate-700 placeholder:text-slate-400"
-                                placeholder="০১৭XXXXXXXX"
+                                placeholder="01XXXXXXXXX"
                                 required
                             />
                         </div>

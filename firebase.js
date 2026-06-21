@@ -2,13 +2,13 @@ import { initializeApp, getApps } from "firebase/app"; // ✅ getApps must be he
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCzVb4TnD_FW2FgcZ31Y32EOTjEwA9pvqY",
-    authDomain: "khelafatmajlis-ba62c.firebaseapp.com",
-    projectId: "khelafatmajlis-ba62c",
-    storageBucket: "khelafatmajlis-ba62c.firebasestorage.app",
-    messagingSenderId: "166404884940",
-    appId: "1:166404884940:web:609caaf18b643403737569",
-    measurementId: "G-4ZZES23SVG"
+    apiKey: process.env.NEXT_PUBLIC_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_APP_ID,
+    measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID,
 };
 
 // ✅ Safe initialization - prevents duplicate app error
