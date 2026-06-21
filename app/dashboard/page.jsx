@@ -158,6 +158,7 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20 sm:pb-4 bangla">
+
             {/* মোবাইলে নিচের বাটনের কারণে লুকানো থাকা ঠিক করতে pb-20 sm:pb-4 করা হয়েছে */}
 
             {toast && (
@@ -212,12 +213,15 @@ export default function DashboardPage() {
                 </div>
             </div>
 
+
+
+
             {/* Table Container */}
             <form onSubmit={handleSave}>
                 <div className="overflow-x-auto">
-                    <div className="min-w-[850px] max-w-[1600px] mx-auto">
+                    <div className="overflow-auto max-h-[80vh] ">
                         <table className="w-full border-collapse">
-                            <thead className="sticky top-0 z-30">
+                            <thead className="sticky top-0 z-30 bg-slate-700">
                                 <tr className="bg-slate-700 text-white">
                                     <th className="text-left px-2 sm:px-4 py-2.5 sm:py-3 w-[60px] sm:w-24 font-semibold border-b border-slate-600 text-xs sm:text-sm">
                                         তারিখ
@@ -243,7 +247,8 @@ export default function DashboardPage() {
                                                     value={day[col.key] || ""}
                                                     onChange={(e) => handleChange(day.id, col.key, e.target.value)}
                                                     className="w-full text-xs sm:text-sm px-1.5 sm:px-2.5 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 placeholder-slate-300 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all"
-                                                    placeholder={`${col.label}...`}
+                                                    // placeholder={`${col.label}...`}
+                                                    placeholder={`...`}
                                                 />
                                             </td>
                                         ))}
