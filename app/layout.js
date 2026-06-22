@@ -1,13 +1,21 @@
 import "./globals.css";
 
 export const metadata = {
+  metadataBase: new URL("https://www.khelafatmajliswpr.com"),
+
+  title: {
+    default: "খেলাফত মজলিস",
+    template: "%s | খেলাফত মজলিস",
+  },
+
+  description: "ব্যক্তিগত তৎপরতার রিপোর্ট",
+
   authors: [
     {
       name: "Arif Billah",
     },
   ],
 
-  // ✅ ICONS FIXED (IMPORTANT PART)
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -18,11 +26,10 @@ export const metadata = {
     apple: "/apple-touch-icon.png",
   },
 
-
   openGraph: {
     title: "খেলাফত মজলিস",
-    description:
-      "ব্যক্তিগত তৎপরতার রিপোর্ট",
+    description: "ব্যক্তিগত তৎপরতার রিপোর্ট",
+    url: "https://www.khelafatmajliswpr.com",
     siteName: "খেলাফত মজলিস",
     locale: "bn_BD",
     type: "website",
@@ -36,13 +43,21 @@ export const metadata = {
     ],
   },
 
+  twitter: {
+    card: "summary_large_image",
+    title: "খেলাফত মজলিস",
+    description: "ব্যক্তিগত তৎপরতার রিপোর্ট",
+    images: ["/Khelafat_Majlis_logo.jpg"],
+  },
+
+  alternates: {
+    canonical: "https://www.khelafatmajliswpr.com",
+  },
 };
 
-
 export default function RootLayout({ children }) {
-
   return (
-    <html>
+    <html lang="bn">
       <body>{children}</body>
     </html>
   );
