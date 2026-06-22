@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { db } from "../../firebase";
 import { ref, get, remove } from "firebase/database";
 
-// এডমিন পিন পরিবর্তন করতে এখানে পরিবর্তন করো
+// এডমিন পিন 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PASS;
 
 const bnNum = (n) =>

@@ -26,6 +26,9 @@ export default function DashboardPage() {
     const [userId, setUserId] = useState(null);
     const [isClientReady, setIsClientReady] = useState(false);
 
+    // নতুন স্টেট: ইউজার ডাটাবেজে আছে কি না তা যাচাই করার জন্য
+    const [isValidUser, setIsValidUser] = useState(false);
+
     const [userName, setUserName] = useState("");
     const [userBranch, setUserBranch] = useState("");
     const [userPin, setUserPin] = useState("");
@@ -62,9 +65,17 @@ export default function DashboardPage() {
                 setUserName(data.name || "নাম নেই");
                 setUserBranch(data.branch || "শাখা নেই");
                 setUserPin(data.pin || "");
+                setIsValidUser(true); // ইউজার ডাটাবেজে পাওয়া গেছে
+            } else {
+                // ডাটাবেজে ইউজার নেই (হয়তো ডিলিট করা হয়েছে)
+                localStorage.removeItem("app_user_uid");
+                router.push("/login");
             }
         } catch (err) {
             console.error("Profile fetch error", err);
+            // নেটওয়ার্ক এরর হলেও লগইন এ পাঠিয়ে দেওয়া নিরাপদ
+            localStorage.removeItem("app_user_uid");
+            router.push("/login");
         }
     };
 
@@ -123,7 +134,7 @@ export default function DashboardPage() {
     };
 
     useEffect(() => {
-        if (!userId) return;
+        if (!userId || !isValidUser) return; // ইউজার ভ্যালিড না হলে ডাটা লোড করবে না
         const fetchData = async () => {
             setLoading(true);
             try {
@@ -137,7 +148,7 @@ export default function DashboardPage() {
             }
         };
         fetchData();
-    }, [year, month, userId]);
+    }, [year, month, userId, isValidUser]);
 
     const handleChange = (id, field, value) => {
         setFormData(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
@@ -158,17 +169,8 @@ export default function DashboardPage() {
         }
     };
 
-    if (!isClientReady) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-slate-50">
-                <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-        );
-    }
-
-    if (!userId) return null;
-
-    if (loading && formData.length === 0) {
+    // যদি ক্লায়েন্ট রেডি না হয়, ইউজার আইডি না থাকে অথবা ডাটাবেজে ইউজার ভ্যালিড না হয় — তাহলে স্পিনার দেখাবে
+    if (!isClientReady || !userId || !isValidUser) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-slate-50">
                 <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
@@ -237,7 +239,6 @@ export default function DashboardPage() {
                                         <input type="text" value={tempName} onChange={(e) => setTempName(e.target.value)} className="text-sm font-bold border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="নাম" />
                                         <input type="text" value={tempBranch} onChange={(e) => setTempBranch(e.target.value)} className="text-sm border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="শাখা" />
 
-                                        {/* পিন ইনপুট type="text" করা হয়েছে যেন ক্লিয়ার দেখায় */}
                                         <input
                                             type="text"
                                             value={tempPin}
@@ -256,7 +257,7 @@ export default function DashboardPage() {
                                     <div className="flex items-center gap-2 cursor-pointer group" onClick={() => {
                                         setTempName(userName);
                                         setTempBranch(userBranch);
-                                        setTempPin(userPin); // এডিট মুডে ঢোকার সময় আগের পিনটাই ক্লিয়ার করে বসিয়ে দিচ্ছে
+                                        setTempPin(userPin);
                                         setIsEditing(true);
                                     }}>
                                         <div>
@@ -326,6 +327,7 @@ export default function DashboardPage() {
                                                     onChange={(e) => handleChange(day.id, col.key, e.target.value)}
                                                     className="w-max text-xs sm:text-sm px-1.5 sm:px-2.5 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 placeholder-slate-300 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all"
                                                     placeholder={`...`}
+                                                    maxLength={100}
                                                 />
                                             </td>
                                         ))}
