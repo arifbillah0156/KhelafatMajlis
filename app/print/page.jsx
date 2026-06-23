@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { db } from "../../firebase";
@@ -78,7 +79,7 @@ const SUMMARY_SUFFIXES = {
     timeDonation: "ঘন্টা",
 };
 
-export default function PrintPage() {
+function PrintContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -400,5 +401,14 @@ export default function PrintPage() {
                 </div>
             </div>
         </>
+    );
+}
+
+
+export default function PrintPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <PrintContent />
+        </Suspense>
     );
 }
