@@ -63,11 +63,11 @@ const COLUMN_GROUPS = [
     },
     {
         groupLabel: "শরীর চর্চা",
-        subFields: [{ key: "physicalExercise", label: "হ্যা/না", type: "text" }],
+        subFields: [{ key: "physicalExercise", label: "হ্যা/না", type: "select", options: ["", "হ্যা", "না"] }],
     },
     {
         groupLabel: "আত্ম-সমালোচনা",
-        subFields: [{ key: "selfCriticism", label: "হ্যা/না", type: "text" }],
+        subFields: [{ key: "selfCriticism", label: "হ্যা/না", type: "select", options: ["", "হ্যা", "না"] }],
     },
 ];
 
@@ -144,6 +144,12 @@ function PrintContent() {
             const val = parseFloat(day[key]);
             return sum + (isNaN(val) ? 0 : val);
         }, 0);
+    };
+
+    // সিলেক্ট ফিল্ডের জন্য গুণতি বের করার ফাংশন
+    const calculateSelectCount = (key, targetValue) => {
+        if (!data) return 0;
+        return data.filter((day) => day[key] === targetValue).length;
     };
 
     const handlePrint = () => window.print();
@@ -232,7 +238,6 @@ function PrintContent() {
                         width: 100%;
                         border-collapse: collapse;
                         font-size: 7.5pt;
-                        /* table-layout: fixed; এই লাইনটি মুছে দেওয়ে দিন */
                         table-layout: auto !important;
                     }
                     .print-table th,
@@ -304,9 +309,9 @@ function PrintContent() {
                                 <div style={{ fontSize: "18pt", fontWeight: "800", letterSpacing: "0.02em", lineHeight: 1.5 }}>
                                     খেলাফত মজলিস
                                 </div>
-                                <p style={{ margin: "0", fontSize: "9pt" }}>কেন্দ্রীয় কার্যালয়: ফায়েনাজ টাওয়ার, ফ্ল্যাট-১১/এ, ৩৭/২ পুরানা পল্টন (কালভার্ট রোড), ঢাকা-১০০০। ফোন- ০১৭১১৩৪৪৮১২</p>
+                                <p style={{ margin: "0", fontSize: "9pt" }}>কেন্দ্রীয় কার্যালয়: ফায়েনাজ টাওয়ার, ফ্ল্যাট-১১/এ, ৩৭/২ পুরানা পল্টন (কালভার্ট রোড), ঢাকা-১০০০। ফোন- ০১৭১১৩৪৪৪৮১২</p>
                                 <div style={{ fontSize: "13pt", fontWeight: "700", marginTop: "3px" }}>
-                                    ব্যক্তিগত তৎপরতার অনলাইন রিপোর্ট
+                                    ব্যক্তিগত তৎপরতার রিপোর্ট
                                 </div>
                                 <div style={{ fontSize: "9pt", marginTop: "5px", display: "flex", justifyContent: "center", gap: "24px" }}>
                                     <span>নাম: <strong>{userName}</strong></span>
@@ -385,6 +390,26 @@ function PrintContent() {
                                 <th className="date-col" style={{ fontSize: "8pt" }}>মোট</th>
                                 {COLUMN_GROUPS.map((group) => {
                                     const numField = group.subFields.find((f) => f.type === "number");
+                                    const selectField = group.subFields.find((f) => f.type === "select");
+
+                                    // যদি ফিল্ড টাইপ সিলেক্ট হয় (হ্যা/না)
+                                    if (selectField) {
+                                        const yesCount = calculateSelectCount(selectField.key, "হ্যা");
+                                        const noCount = calculateSelectCount(selectField.key, "না");
+                                        return (
+                                            <td
+                                                key={group.groupLabel}
+                                                colSpan={group.subFields.length}
+                                                style={{ textAlign: "center", fontSize: "7.5pt" }}
+                                            >
+                                                <span>হ্যা: {bnNum(yesCount)}</span>
+                                                <span style={{ margin: "0 4px", color: "#666" }}>|</span>
+                                                <span>না: {bnNum(noCount)}</span>
+                                            </td>
+                                        );
+                                    }
+
+                                    // সাধারণ নাম্বার বা টেক্সট ফিল্ডের জন্য
                                     return (
                                         <td
                                             key={group.groupLabel}

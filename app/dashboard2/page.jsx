@@ -66,13 +66,13 @@ const COLUMN_GROUPS = [
     {
         groupLabel: "শরীর চর্চা",
         subFields: [
-            { key: "physicalExercise", label: "হ্যা/না", type: "text" }, // কী পরিবর্তন করা হয়েছে
+            { key: "physicalExercise", label: "হ্যা/না", type: "select", options: ["", "হ্যা", "না"] },
         ],
     },
     {
         groupLabel: "আত্ম-সমালোচনা",
         subFields: [
-            { key: "selfCriticism", label: "হ্যা/না", type: "text" },
+            { key: "selfCriticism", label: "হ্যা/না", type: "select", options: ["", "হ্যা", "না"] },
         ],
     },
 ];
@@ -233,6 +233,10 @@ export default function DashboardPage() {
             const val = parseFloat(day[key]);
             return sum + (isNaN(val) ? 0 : val);
         }, 0);
+    };
+
+    const calculateSelectCount = (key, targetValue) => {
+        return formData.filter(day => day[key] === targetValue).length;
     };
 
     const handlePrint = () => {
@@ -404,15 +408,27 @@ export default function DashboardPage() {
                                             {COLUMN_GROUPS.map((group) =>
                                                 group.subFields.map((field) => (
                                                     <td key={field.key} className="px-0.5 sm:px-1 py-0.5 sm:py-1.5 border-b border-r border-slate-100">
-                                                        <input
-                                                            type={field.type}
-                                                            value={day[field.key] || ""}
-                                                            onChange={(e) => handleChange(day.id, field.key, e.target.value)}
-                                                            min={field.type === "number" ? 0 : undefined}
-                                                            className={`text-xs sm:text-sm px-1.5 sm:px-2 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 placeholder-slate-300 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all ${field.type === "number" ? "w-14 sm:w-16 text-center" : "w-24 sm:w-32"}`}
-                                                            placeholder="..."
-                                                            maxLength={field.type === "text" ? 100 : undefined}
-                                                        />
+                                                        {field.type === "select" ? (
+                                                            <select
+                                                                value={day[field.key] || ""}
+                                                                onChange={(e) => handleChange(day.id, field.key, e.target.value)}
+                                                                className="text-xs sm:text-sm px-1 sm:px-2 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all w-16 sm:w-20 text-center appearance-none cursor-pointer"
+                                                            >
+                                                                {(field.options || []).map((opt) => (
+                                                                    <option key={opt} value={opt}>{opt || "..."}</option>
+                                                                ))}
+                                                            </select>
+                                                        ) : (
+                                                            <input
+                                                                type={field.type}
+                                                                value={day[field.key] || ""}
+                                                                onChange={(e) => handleChange(day.id, field.key, e.target.value)}
+                                                                min={field.type === "number" ? 0 : undefined}
+                                                                className={`text-xs sm:text-sm px-1.5 sm:px-2 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 placeholder-slate-300 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all ${field.type === "number" ? "w-14 sm:w-16 text-center" : "w-24 sm:w-32"}`}
+                                                                placeholder="..."
+                                                                maxLength={field.type === "text" ? 100 : undefined}
+                                                            />
+                                                        )}
                                                     </td>
                                                 ))
                                             )}
@@ -426,6 +442,19 @@ export default function DashboardPage() {
                                     <th className="text-left px-2 sm:px-4 py-3 font-bold border-t-2 border-r border-slate-600 text-xs sm:text-sm bg-slate-800">মোট</th>
                                     {COLUMN_GROUPS.map((group) => {
                                         const numberField = group.subFields.find(f => f.type === "number");
+                                        const selectField = group.subFields.find(f => f.type === "select");
+
+                                        if (selectField) {
+                                            const yesCount = calculateSelectCount(selectField.key, "হ্যা");
+                                            const noCount = calculateSelectCount(selectField.key, "না");
+                                            return (
+                                                <td key={group.groupLabel} colSpan={group.subFields.length} className="text-center px-2 py-3 border-t-2 border-r border-slate-600 text-xs sm:text-sm font-bold bg-slate-800">
+                                                    <span className="text-emerald-300">হ্যা: {bnNum(yesCount)}</span> <br />
+                                                    <span className="text-red-300">না: {bnNum(noCount)}</span>
+                                                </td>
+                                            );
+                                        }
+
                                         let suffix = "";
                                         switch (numberField?.key) {
                                             case "quranAyat": suffix = "টি আয়াত"; break;
