@@ -9,22 +9,77 @@ const bnNum = (n) => n.toString().replace(/\d/g, d => "০১২৩৪৫৬৭�
 const daysInBn = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র', 'শনি'];
 const monthsInBn = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
 
-const COLUMNS = [
-    { key: "quranStudy", label: "কোরআন অধ্যয়ন\nসুরা, আয়াত" },
-    { key: "hadithStudy", label: "হাদীস অধ্যয়ন\nসংখ্যা, বিষয়" },
-    { key: "islamicSahitya", label: "ইসলামী সাহিত্য পাঠ\nনাম, পৃষ্ঠা" },
-    { key: "namaz", label: "জামাতে নামাজ কত ওয়াক্ত" },
-    { key: "contact", label: "যোগাযোগ\nসংখ্যা, নাম" },
-    { key: "dawat", label: "দাওয়াত\nকত জন, নাম" },
-    { key: "timeDonation", label: "সময় দান\nকত ঘন্টা" },
-    { key: "socialService", label: "সমাজ সেবা\nকি ধরনের" },
-    { key: "selfCriticism", label: "আত্ম-সমালোচনা\nহ্যা/না" },
+// প্রতিটি column এর definition — subFields দিয়ে split করা হয়েছে
+const COLUMN_GROUPS = [
+    {
+        groupLabel: "কোরআন অধ্যয়ন",
+        subFields: [
+            { key: "quranAyat", label: "আয়াত সংখ্যা", type: "number" },
+            { key: "quranSura", label: "সুরার নাম", type: "text" },
+        ],
+    },
+    {
+        groupLabel: "হাদীস অধ্যয়ন",
+        subFields: [
+            { key: "hadithCount", label: "হাদীস সংখ্যা", type: "number" },
+            { key: "hadithTopic", label: "বিষয়", type: "text" },
+        ],
+    },
+    {
+        groupLabel: "ইসলামী সাহিত্য পাঠ",
+        subFields: [
+            { key: "sahityaPage", label: "পৃষ্ঠা সংখ্যা", type: "number" },
+            { key: "sahityaName", label: "নাম", type: "text" },
+        ],
+    },
+    {
+        groupLabel: "জামাতে নামাজ\nকত ওয়াক্ত",
+        subFields: [
+            { key: "namaz", label: "ওয়াক্ত", type: "number" },
+        ],
+    },
+    {
+        groupLabel: "যোগাযোগ",
+        subFields: [
+            { key: "contactCount", label: "সংখ্যা", type: "number" },
+            { key: "contactNames", label: "নামসমূহ", type: "text" },
+        ],
+    },
+    {
+        groupLabel: "দাওয়াত",
+        subFields: [
+            { key: "dawatCount", label: "কত জন", type: "number" },
+            { key: "dawatNames", label: "নামসমূহ", type: "text" },
+        ],
+    },
+    {
+        groupLabel: "সময় দান\nকত ঘন্টা",
+        subFields: [
+            { key: "timeDonation", label: "ঘন্টা", type: "number" },
+        ],
+    },
+    {
+        groupLabel: "সমাজ সেবা\nকি ধরনের",
+        subFields: [
+            { key: "socialService", label: "বিবরণ", type: "text" },
+        ],
+    },
+    {
+        groupLabel: "আত্ম-সমালোচনা",
+        subFields: [
+            { key: "selfCriticism", label: "মন্তব্য", type: "text" },
+        ],
+    },
 ];
+
+// সব sub-field keys একটি flat array তে
+const ALL_FIELD_KEYS = COLUMN_GROUPS.flatMap(g => g.subFields.map(f => f.key));
 
 export default function DashboardPage() {
     const router = useRouter();
     const [userId, setUserId] = useState(null);
     const [isClientReady, setIsClientReady] = useState(false);
+    const [isValidUser, setIsValidUser] = useState(false);
 
     const [userName, setUserName] = useState("");
     const [userBranch, setUserBranch] = useState("");
@@ -62,16 +117,20 @@ export default function DashboardPage() {
                 setUserName(data.name || "নাম নেই");
                 setUserBranch(data.branch || "শাখা নেই");
                 setUserPin(data.pin || "");
+                setIsValidUser(true);
+            } else {
+                localStorage.removeItem("app_user_uid");
+                router.push("/login");
             }
         } catch (err) {
             console.error("Profile fetch error", err);
+            localStorage.removeItem("app_user_uid");
+            router.push("/login");
         }
     };
 
     useEffect(() => {
-        if (userId) {
-            fetchUserProfile();
-        }
+        if (userId) fetchUserProfile();
     }, [userId]);
 
     const handleProfileUpdate = async () => {
@@ -79,15 +138,13 @@ export default function DashboardPage() {
             setToast({ type: "error", msg: "পিন কমপক্ষে ৪ সংখ্যার হতে হবে" });
             return;
         }
-
         setProfileSaving(true);
         try {
             const pinToSave = tempPin === "" ? userPin : tempPin;
-
             await update(ref(db, `users/${userId}`), {
                 name: tempName,
                 branch: tempBranch,
-                pin: pinToSave
+                pin: pinToSave,
             });
             setUserName(tempName);
             setUserBranch(tempBranch);
@@ -107,6 +164,7 @@ export default function DashboardPage() {
         router.push("/login");
     };
 
+    // প্রতিটি দিনের জন্য সব field key দিয়ে empty object তৈরি
     const generateDays = (y, m) => {
         const daysInMonth = new Date(y, m + 1, 0).getDate();
         return Array.from({ length: daysInMonth }, (_, i) => {
@@ -114,22 +172,58 @@ export default function DashboardPage() {
             const dateObj = new Date(y, m, d);
             const day = {
                 id: i,
-                date: bnNum(d.toString().padStart(2, '0')),
-                dayName: daysInBn[dateObj.getDay()]
+                date: bnNum(d.toString().padStart(2, "0")),
+                dayName: daysInBn[dateObj.getDay()],
             };
-            COLUMNS.forEach(col => { day[col.key] = ""; });
+            ALL_FIELD_KEYS.forEach((key) => { day[key] = ""; });
             return day;
         });
     };
 
+    // Firebase থেকে আসা পুরনো single-field data কে নতুন structure এ migrate করে
+    const migrateOldData = (days) => {
+        return days.map((day) => {
+            const migrated = { ...day };
+            if (day.quranStudy !== undefined && !day.quranAyat) {
+                migrated.quranAyat = "";
+                migrated.quranSura = day.quranStudy || "";
+            }
+            if (day.hadithStudy !== undefined && !day.hadithCount) {
+                migrated.hadithCount = "";
+                migrated.hadithTopic = day.hadithStudy || "";
+            }
+            if (day.islamicSahitya !== undefined && !day.sahityaPage) {
+                migrated.sahityaPage = "";
+                migrated.sahityaName = day.islamicSahitya || "";
+            }
+            if (day.contact !== undefined && !day.contactCount) {
+                migrated.contactCount = "";
+                migrated.contactNames = day.contact || "";
+            }
+            if (day.dawat !== undefined && !day.dawatCount) {
+                migrated.dawatCount = "";
+                migrated.dawatNames = day.dawat || "";
+            }
+            ALL_FIELD_KEYS.forEach((key) => {
+                if (migrated[key] === undefined) migrated[key] = "";
+            });
+            return migrated;
+        });
+    };
+
     useEffect(() => {
-        if (!userId) return;
+        if (!userId || !isValidUser) return;
         const fetchData = async () => {
             setLoading(true);
             try {
                 const docId = `${year}-${month + 1}`;
                 const snapshot = await get(ref(db, `monthlyData/${userId}/records/${docId}`));
-                setFormData(snapshot.exists() ? snapshot.val().days : generateDays(year, month));
+                if (snapshot.exists()) {
+                    const rawDays = snapshot.val().days;
+                    setFormData(migrateOldData(rawDays));
+                } else {
+                    setFormData(generateDays(year, month));
+                }
             } catch (error) {
                 setFormData(generateDays(year, month));
             } finally {
@@ -137,10 +231,12 @@ export default function DashboardPage() {
             }
         };
         fetchData();
-    }, [year, month, userId]);
+    }, [year, month, userId, isValidUser]);
 
     const handleChange = (id, field, value) => {
-        setFormData(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+        setFormData((prev) =>
+            prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
+        );
     };
 
     const handleSave = async (e) => {
@@ -148,7 +244,10 @@ export default function DashboardPage() {
         setSaving(true);
         try {
             const docId = `${year}-${month + 1}`;
-            await set(ref(db, `monthlyData/${userId}/records/${docId}`), { days: formData, savedAt: new Date().toISOString() });
+            await set(ref(db, `monthlyData/${userId}/records/${docId}`), {
+                days: formData,
+                savedAt: new Date().toISOString(),
+            });
             setToast({ type: "success", msg: "সফলভাবে সেভ হয়েছে" });
         } catch (err) {
             setToast({ type: "error", msg: "সেভ করতে সমস্যা হয়েছে" });
@@ -158,17 +257,15 @@ export default function DashboardPage() {
         }
     };
 
-    if (!isClientReady) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-slate-50">
-                <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-        );
-    }
+    // নির্দিষ্ট কোনো নাম্বার ফিল্ডের সব তারিখের যোগফল বের করার ফাংশন
+    const calculateSum = (key) => {
+        return formData.reduce((sum, day) => {
+            const val = parseFloat(day[key]);
+            return sum + (isNaN(val) ? 0 : val);
+        }, 0);
+    };
 
-    if (!userId) return null;
-
-    if (loading && formData.length === 0) {
+    if (!isClientReady || !userId || !isValidUser) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-slate-50">
                 <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
@@ -184,36 +281,28 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            {/* ===== Compact Premium Header ===== */}
+            {/* ===== Header ===== */}
             <div className="relative overflow-hidden bg-gradient-to-r from-emerald-800 via-emerald-700 to-green-700 text-white shadow-lg">
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute -top-16 -left-16 w-52 h-52 bg-white/10 rounded-full blur-3xl" />
                     <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-emerald-300/20 rounded-full blur-3xl" />
                 </div>
-
                 <div className="relative z-10 px-4 sm:px-6 py-4">
                     <div className="flex items-center justify-center gap-4">
                         <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white shadow-lg ring-2 ring-white/30 overflow-hidden flex items-center justify-center flex-shrink-0">
-                            <img
-                                src="/Khelafat_Majlis_logo.jpg"
-                                alt="Logo"
-                                className="w-11 h-11 sm:w-13 sm:h-13 object-contain"
-                            />
+                            <img src="/Khelafat_Majlis_logo.jpg" alt="Logo" className="w-11 h-11 sm:w-13 sm:h-13 object-contain" />
                         </div>
-
                         <div className="text-left">
                             <div className="md:hidden">
                                 <h1 className="text-xl font-bold leading-tight">খেলাফত মজলিস</h1>
                                 <p className="text-sm text-emerald-100 font-medium">ঢাকা মহানগরী উত্তর</p>
                             </div>
-
                             <div className="hidden md:block">
                                 <h1 className="text-3xl font-extrabold leading-none tracking-wide">
                                     খেলাফত মজলিস
                                     <span className="text-lg font-medium text-emerald-100">, ঢাকা মহানগরী উত্তর</span>
                                 </h1>
                             </div>
-
                             <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 border border-white/20">
                                 <span className="relative flex h-2.5 w-2.5">
                                     <span className="absolute inline-flex h-full w-full rounded-full bg-lime-300 animate-ping opacity-70"></span>
@@ -236,29 +325,14 @@ export default function DashboardPage() {
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                         <input type="text" value={tempName} onChange={(e) => setTempName(e.target.value)} className="text-sm font-bold border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="নাম" />
                                         <input type="text" value={tempBranch} onChange={(e) => setTempBranch(e.target.value)} className="text-sm border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="শাখা" />
-
-                                        {/* পিন ইনপুট type="text" করা হয়েছে যেন ক্লিয়ার দেখায় */}
-                                        <input
-                                            type="text"
-                                            value={tempPin}
-                                            onChange={(e) => setTempPin(e.target.value)}
-                                            className="text-sm border border-slate-300 rounded px-2 py-1 w-full sm:w-auto"
-                                            placeholder="পিন পরিবর্তন করতে চাইলে নতুন পিন দিন"
-                                            maxLength={10}
-                                        />
-
+                                        <input type="text" value={tempPin} onChange={(e) => setTempPin(e.target.value)} className="text-sm border border-slate-300 rounded px-2 py-1 w-full sm:w-auto" placeholder="পিন পরিবর্তন করতে চাইলে নতুন পিন দিন" maxLength={10} />
                                         <button onClick={handleProfileUpdate} disabled={profileSaving} className="text-[12px] bg-emerald-100 text-emerald-700 px-3 py-2 rounded-lg font-semibold hover:bg-emerald-200 disabled:opacity-50">
                                             {profileSaving ? "সেভ হচ্ছে..." : "সেভ করুন"}
                                         </button>
                                         <button onClick={() => setIsEditing(false)} className="text-xs text-slate-500 hover:text-slate-700 px-2">বাতিল</button>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 cursor-pointer group" onClick={() => {
-                                        setTempName(userName);
-                                        setTempBranch(userBranch);
-                                        setTempPin(userPin); // এডিট মুডে ঢোকার সময় আগের পিনটাই ক্লিয়ার করে বসিয়ে দিচ্ছে
-                                        setIsEditing(true);
-                                    }}>
+                                    <div className="flex items-center gap-2 cursor-pointer group" onClick={() => { setTempName(userName); setTempBranch(userBranch); setTempPin(userPin); setIsEditing(true); }}>
                                         <div>
                                             <h1 className="text-sm sm:text-base font-bold text-slate-800 group-hover:text-emerald-600 transition-colors">{userName}</h1>
                                             <p className="text-[11px] text-slate-500">{userBranch}</p>
@@ -290,53 +364,149 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Table Container */}
+            {/* Table */}
             <form onSubmit={handleSave} className="flex justify-center">
                 <div className="overflow-x-auto">
                     <div className="overflow-auto max-h-[80vh]">
                         <table className="w-min border-collapse">
-                            <thead className="sticky top-0 z-30 bg-slate-700">
+                            <thead className="sticky top-0 z-30">
+                                {/* Row 1: Group labels */}
                                 <tr className="bg-slate-700 text-white">
-                                    <th className="text-left px-2 sm:px-4 py-2.5 sm:py-3 sm:w-24 font-semibold border-b border-slate-600 text-xs sm:text-sm">
+                                    <th
+                                        rowSpan={2}
+                                        className="text-left px-2 sm:px-4 py-2 font-semibold border-b border-r border-slate-600 text-xs sm:text-sm align-middle"
+                                    >
                                         তারিখ
                                     </th>
-                                    {COLUMNS.map(col => (
+                                    {COLUMN_GROUPS.map((group) => (
                                         <th
-                                            key={col.key}
-                                            className="text-center px-1.5 sm:px-3 py-2.5 sm:py-3 font-semibold border-b border-slate-600 text-xs sm:text-sm whitespace-pre-line"
+                                            key={group.groupLabel}
+                                            colSpan={group.subFields.length}
+                                            className="text-center px-2 py-2 font-semibold border-b border-r border-slate-600 text-xs sm:text-sm whitespace-pre-line"
                                         >
-                                            {col.label}
+                                            {group.groupLabel}
                                         </th>
                                     ))}
+                                </tr>
+                                {/* Row 2: Sub-field labels */}
+                                <tr className="bg-slate-600 text-white">
+                                    {COLUMN_GROUPS.map((group) =>
+                                        group.subFields.map((field) => (
+                                            <th
+                                                key={field.key}
+                                                className="text-center px-1.5 sm:px-2 py-1.5 font-medium border-b border-r border-slate-500 text-[10px] sm:text-xs whitespace-nowrap"
+                                            >
+                                                {field.label}
+                                            </th>
+                                        ))
+                                    )}
                                 </tr>
                             </thead>
 
                             <tbody>
-                                {formData.map((day, idx) => (
-                                    <tr key={day.id} className={`${idx % 2 === 0 ? "bg-white" : "bg-slate-50/70"} hover:bg-emerald-50/50 transition-colors`}>
-                                        <td className="px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-100">
-                                            <span className="text-xs sm:text-sm font-semibold text-slate-700">{day.date}</span>
-                                            <span className="block text-[10px] sm:text-[11px] text-slate-400 leading-tight">{day.dayName}</span>
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={ALL_FIELD_KEYS.length + 1} className="text-center py-12 text-slate-400">
+                                            <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                                            <span className="text-xs">লোড হচ্ছে...</span>
                                         </td>
-                                        {COLUMNS.map(col => (
-                                            <td key={col.key} className="px-0.5 sm:px-1 py-0.5 sm:py-1.5 border-b border-slate-100">
-                                                <input
-                                                    type="text"
-                                                    value={day[col.key] || ""}
-                                                    onChange={(e) => handleChange(day.id, col.key, e.target.value)}
-                                                    className="w-max text-xs sm:text-sm px-1.5 sm:px-2.5 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 placeholder-slate-300 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all"
-                                                    placeholder={`...`}
-                                                />
-                                            </td>
-                                        ))}
                                     </tr>
-                                ))}
+                                ) : (
+                                    formData.map((day, idx) => (
+                                        <tr
+                                            key={day.id}
+                                            className={`${idx % 2 === 0 ? "bg-white" : "bg-slate-50/70"} hover:bg-emerald-50/50 transition-colors`}
+                                        >
+                                            {/* তারিখ কলাম */}
+                                            <td className="px-2 sm:px-4 py-1.5 sm:py-2 border-b border-r border-slate-100">
+                                                <span className="text-xs sm:text-sm font-semibold text-slate-700">{day.date}</span>
+                                                <span className="block text-[10px] sm:text-[11px] text-slate-400 leading-tight">{day.dayName}</span>
+                                            </td>
+
+                                            {/* প্রতিটি group এর sub-fields */}
+                                            {COLUMN_GROUPS.map((group) =>
+                                                group.subFields.map((field) => (
+                                                    <td
+                                                        key={field.key}
+                                                        className="px-0.5 sm:px-1 py-0.5 sm:py-1.5 border-b border-r border-slate-100"
+                                                    >
+                                                        <input
+                                                            type={field.type}
+                                                            value={day[field.key] || ""}
+                                                            onChange={(e) => handleChange(day.id, field.key, e.target.value)}
+                                                            min={field.type === "number" ? 0 : undefined}
+                                                            className={`text-xs sm:text-sm px-1.5 sm:px-2 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 placeholder-slate-300 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all ${field.type === "number"
+                                                                ? "w-14 sm:w-16 text-center"
+                                                                : "w-24 sm:w-32"
+                                                                }`}
+                                                            placeholder="..."
+                                                            maxLength={field.type === "text" ? 100 : undefined}
+                                                        />
+                                                    </td>
+                                                ))
+                                            )}
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
+
+                            {/* ===== সামারি রো (মোট যোগফল) ===== */}
+                            <tfoot className="sticky bottom-0 z-20">
+                                <tr className="bg-slate-800 text-white">
+                                    <th className="text-left px-2 sm:px-4 py-3 font-bold border-t-2 border-r border-slate-600 text-xs sm:text-sm bg-slate-800">
+                                        মোট
+                                    </th>
+                                    {COLUMN_GROUPS.map((group) => {
+                                        const numberField = group.subFields.find(f => f.type === "number");
+
+                                        let suffix = "";
+
+                                        switch (numberField?.key) {
+                                            case "quranAyat":
+                                                suffix = "টি আয়াত";
+                                                break;
+                                            case "hadithCount":
+                                                suffix = "টি হাদীস";
+                                                break;
+                                            case "sahityaPage":
+                                                suffix = "পৃষ্ঠা";
+                                                break;
+                                            case "namaz":
+                                                suffix = "ওয়াক্ত";
+                                                break;
+                                            case "contactCount":
+                                                suffix = "জন";
+                                                break;
+                                            case "dawatCount":
+                                                suffix = "জন";
+                                                break;
+                                            case "timeDonation":
+                                                suffix = "ঘন্টা";
+                                                break;
+                                            default:
+                                                suffix = "";
+                                        }
+
+                                        return (
+                                            <td
+                                                key={group.groupLabel}
+                                                colSpan={group.subFields.length}
+                                                className="text-center px-2 py-3 border-t-2 border-r border-slate-600 text-xs sm:text-sm font-bold bg-slate-800"
+                                            >
+                                                {numberField
+                                                    ? `${bnNum(calculateSum(numberField.key))} ${suffix}`
+                                                    : ""}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            </tfoot>
+
                         </table>
                     </div>
                 </div>
 
-                {/* Mobile Bottom Save Button */}
+                {/* Mobile Bottom Save */}
                 <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 p-3 shadow-lg">
                     <button
                         type="submit"
