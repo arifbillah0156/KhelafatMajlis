@@ -170,31 +170,42 @@ function PrintContent() {
 
     return (
         <>
-            {/* ===== Screen-only controls ===== */}
-            <div className="print:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm px-4 py-3 flex items-center justify-between bangla">
-                <button
-                    onClick={() => router.back()}
-                    className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    ফিরে যান
-                </button>
-                <span className="text-sm font-semibold text-gray-700">
-                    {monthsInBn[month]} {bnNum(year)}
-                </span>
-                <button
-                    onClick={handlePrint}
-                    className="flex items-center gap-2 bg-black text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
-                >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    প্রিন্ট করুন
-                </button>
+            <div className="print:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm px-4 py-3 bangla">
+
+                <div className="flex items-center justify-between">
+                    <button
+                        onClick={() => router.back()}
+                        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        ফিরে যান
+                    </button>
+
+                    <span className="text-sm font-semibold text-gray-700">
+                        {monthsInBn[month]} {bnNum(year)}
+                    </span>
+
+                    <button
+                        onClick={handlePrint}
+                        className="flex items-center gap-2 bg-black text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        প্রিন্ট করুন
+                    </button>
+                </div>
+
+                {/* Mobile note */}
+                <div className="md:hidden mt-3 text-xs text-red-500 bangla">
+                    মোবাইলের ক্ষেত্রে প্রিন্ট দেওয়া বা পিডিএফ ডাউনলোডের ক্ষেত্রে Orientation = Landscape করে নিন
+                </div>
+
             </div>
+
 
             {/* ===== Printable content ===== */}
             <div className="bangla print:m-0 pt-16 print:pt-0">
