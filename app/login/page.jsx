@@ -103,7 +103,7 @@ export default function AuthPage() {
 
                 {/* ===== হেডার সেকশন ===== */}
                 <div className="text-center mb-6">
-                    <div className="inline-flex items-center justify-center w-24 h-24 bg-white rounded-2xl shadow-lg shadow-emerald-500/20 mb-4 p-1.5 border border-emerald-100">
+                    <div className="inline-flex items-center justify-center w-28 h-28 bg-white rounded-2xl shadow-lg shadow-emerald-500/20 mb-4 p-1.5 border border-emerald-100">
                         <img
                             src="/Khelafat_Majlis_logo.jpg"
                             alt="খেলাফত মজলিস"
@@ -113,11 +113,11 @@ export default function AuthPage() {
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-emerald-800 leading-tight">
                         খেলাফত মজলিস
                     </h1>
-                    <p className="text-base sm:text-lg font-semibold text-emerald-600 mt-1">
-                        ঢাকা মহানগরী উত্তর
+                    <p className="px-6 text-[12px] sm:text-sm font-semibold text-emerald-600 mt-1">
+                        কেন্দ্রীয় কার্যালয়: ফায়েনাজ টাওয়ার, ফ্ল্যাট-১১/এ, ৩৭/২ পুরানা পল্টন (কালভার্ট রোড), ঢাকা-১০০০। ফোন- ০১৭১১৩৪৪৮১২
                     </p>
-                    <div className="mt-2 inline-flex items-center gap-2 bg-emerald-100/80 text-emerald-700 text-sm sm:text-lg font-medium px-4 py-1.5 rounded-full">
-                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                    <div className="mt-2 inline-flex items-center gap-2 bg-emerald-100/80 text-emerald-700 text-sm sm:text-lg font-medium px-4 py-1.5 rounded-full border border-green-300">
+                        <span className="w-1.5 h-1.5 mt-[-2px] bg-emerald-500 rounded-full animate-pulse" />
                         ব্যক্তিগত তৎপরতার রিপোর্ট
                     </div>
                 </div>

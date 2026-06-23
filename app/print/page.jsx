@@ -62,6 +62,10 @@ const COLUMN_GROUPS = [
         subFields: [{ key: "socialService", label: "বিবরণ", type: "text" }],
     },
     {
+        groupLabel: "শরীর চর্চা",
+        subFields: [{ key: "physicalExercise", label: "হ্যা/না", type: "text" }],
+    },
+    {
         groupLabel: "আত্ম-সমালোচনা",
         subFields: [{ key: "selfCriticism", label: "হ্যা/না", type: "text" }],
     },
@@ -171,7 +175,6 @@ function PrintContent() {
     return (
         <>
             <div className="print:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm px-4 py-3 bangla">
-
                 <div className="flex items-center justify-between">
                     <button
                         onClick={() => router.back()}
@@ -199,13 +202,10 @@ function PrintContent() {
                     </button>
                 </div>
 
-                {/* Mobile note */}
                 <div className="md:hidden mt-3 text-sm text-red-500 bangla">
                     বি.দ্র: মোবাইল থেকে পিডিএফ ডাউনলোড বা প্রিন্ট দেওয়ার ক্ষেত্রে সেটিং থেকে Orientation = Landscape করে নিন।
                 </div>
-
             </div>
-
 
             {/* ===== Printable content ===== */}
             <div className="bangla print:m-0 pt-16 print:pt-0">
@@ -232,7 +232,8 @@ function PrintContent() {
                         width: 100%;
                         border-collapse: collapse;
                         font-size: 7.5pt;
-                        table-layout: fixed;
+                        /* table-layout: fixed; এই লাইনটি মুছে দেওয়ে দিন */
+                        table-layout: auto !important;
                     }
                     .print-table th,
                     .print-table td {
@@ -253,11 +254,11 @@ function PrintContent() {
                         font-weight: 600;
                     }
                     .print-table .num-col {
-                        width: 28px; /* আগে ছিল 32px, এখন কমানো হয়েছে */
+                        width: 40px !important; 
                         text-align: center;
                     }
                     .print-table .text-col {
-                        width: 82px; /* আগে ছিল 68px, এখন বাড়ানো হয়েছে */
+                        width: 60px !important; 
                         text-align: left;
                     }
                     .print-table tbody tr:nth-child(even) td {
@@ -277,7 +278,7 @@ function PrintContent() {
                             margin: 20px auto 40px;
                             background: white;
                             box-shadow: 0 2px 20px rgba(0,0,0,0.12);
-                            padding: 12.7mm; /* 0.5 inch */
+                            padding: 12.7mm; 
                             min-height: 210mm;
                         }
                         .print-table {
@@ -288,19 +289,38 @@ function PrintContent() {
 
                 <div className="print-wrapper">
 
-                    {/* Header */}
-                    <div style={{ textAlign: "center", marginBottom: "10px", borderBottom: "2px solid #000", paddingBottom: "8px" }}>
-                        <div style={{ fontSize: "15pt", fontWeight: "800", letterSpacing: "0.02em", lineHeight: 1.2 }}>
-                            খেলাফত মজলিস — ঢাকা মহানগরী উত্তর
-                        </div>
-                        <div style={{ fontSize: "13pt", fontWeight: "700", marginTop: "3px" }}>
-                            ব্যক্তিগত তৎপরতার অনলাইন রিপোর্ট
-                        </div>
-                        {/* মোবাইল নাম্বার যোগ করা হয়েছে এখানে */}
-                        <div style={{ fontSize: "9pt", marginTop: "5px", display: "flex", justifyContent: "center", gap: "24px" }}>
-                            <span>নাম: <strong>{userName}</strong></span>
-                            <span>শাখা: <strong>{userBranch}</strong></span>
-                            <span>মাস: <strong>{monthsInBn[month]} {bnNum(year)}</strong></span>
+                    {/* ===== আপডেটেড হেডার (ছবি সহ) ===== */}
+                    <div style={{ marginBottom: "10px", borderBottom: "2px solid #000", paddingBottom: "8px" }}>
+                        <div style={{ display: "flex", alignItems: "start", justifyContent: "center", gap: "60px" }}>
+                            {/* বাম পাশের ছবি */}
+                            <img
+                                src="/Khelafat_Majlis_logo.jpg"
+                                alt="খেলাফত মজলিস লোগো"
+                                style={{ height: "65px", width: "65px", objectFit: "contain" }}
+                            />
+
+                            {/* মাঝখানে টেক্সট কন্টেন্ট */}
+                            <div style={{ textAlign: "center" }}>
+                                <div style={{ fontSize: "18pt", fontWeight: "800", letterSpacing: "0.02em", lineHeight: 1.5 }}>
+                                    খেলাফত মজলিস
+                                </div>
+                                <p style={{ margin: "0", fontSize: "9pt" }}>কেন্দ্রীয় কার্যালয়: ফায়েনাজ টাওয়ার, ফ্ল্যাট-১১/এ, ৩৭/২ পুরানা পল্টন (কালভার্ট রোড), ঢাকা-১০০০। ফোন- ০১৭১১৩৪৪৮১২</p>
+                                <div style={{ fontSize: "13pt", fontWeight: "700", marginTop: "3px" }}>
+                                    ব্যক্তিগত তৎপরতার অনলাইন রিপোর্ট
+                                </div>
+                                <div style={{ fontSize: "9pt", marginTop: "5px", display: "flex", justifyContent: "center", gap: "24px" }}>
+                                    <span>নাম: <strong>{userName}</strong></span>
+                                    <span>শাখা: <strong>{userBranch}</strong></span>
+                                    <span>মাস: <strong>{monthsInBn[month]} {bnNum(year)}</strong></span>
+                                </div>
+                            </div>
+
+                            {/* ডান পাশের ছবি */}
+                            <img
+                                src="/KM_Clock.png"
+                                alt="খেলাফত মজলিস লোগো"
+                                style={{ height: "85px", width: "85px", objectFit: "contain" }}
+                            />
                         </div>
                     </div>
 
@@ -418,7 +438,7 @@ function PrintContent() {
 
 export default function PrintPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen bangla"><div className="w-8 h-8 border-2 border-gray-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" /><p className="text-gray-500 text-sm">প্রিন্ট পেজ লোড হচ্ছে...</p></div>}>
             <PrintContent />
         </Suspense>
     );

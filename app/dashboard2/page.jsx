@@ -64,6 +64,12 @@ const COLUMN_GROUPS = [
         ],
     },
     {
+        groupLabel: "শরীর চর্চা",
+        subFields: [
+            { key: "physicalExercise", label: "হ্যা/না", type: "text" }, // কী পরিবর্তন করা হয়েছে
+        ],
+    },
+    {
         groupLabel: "আত্ম-সমালোচনা",
         subFields: [
             { key: "selfCriticism", label: "হ্যা/না", type: "text" },
@@ -263,12 +269,10 @@ export default function DashboardPage() {
                         <div className="text-left">
                             <div className="md:hidden">
                                 <h1 className="text-xl font-bold leading-tight">খেলাফত মজলিস</h1>
-                                <p className="text-sm text-emerald-100 font-medium">ঢাকা মহানগরী উত্তর</p>
                             </div>
                             <div className="hidden md:block">
                                 <h1 className="text-3xl font-extrabold leading-none tracking-wide">
                                     খেলাফত মজলিস
-                                    <span className="text-lg font-medium text-emerald-100">, ঢাকা মহানগরী উত্তর</span>
                                 </h1>
                             </div>
                             <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 border border-white/20">
@@ -310,9 +314,7 @@ export default function DashboardPage() {
                                 )}
                             </div>
 
-                            {/* মোবাইল বাটন এরিয়া */}
                             <div className="flex items-center gap-2">
-                                {/* মোবাইলের জন্য লগআউটের বামপাশে প্রিন্ট বাটন */}
                                 <button
                                     type="button"
                                     onClick={handlePrint}
@@ -340,7 +342,6 @@ export default function DashboardPage() {
                                 {[2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{bnNum(y)}</option>)}
                             </select>
 
-                            {/* ডেস্কটপের জন্য প্রিন্ট বাটন (আগের মতোই আছে) */}
                             <button
                                 type="button"
                                 onClick={handlePrint}
