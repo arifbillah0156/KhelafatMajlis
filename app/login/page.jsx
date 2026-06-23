@@ -58,9 +58,11 @@ export default function AuthPage() {
                 if (userSnapshot.exists()) {
                     setErrorMsg("এই মোবাইল নাম্বারে আগে থেকেই একাউন্ট রয়েছে। দয়া করে লগইন করুন।");
                 } else {
+                    // এখানে mobile নাম্বারটিও সেভ করে দেওয়া হয়েছে
                     await set(ref(db, `users/${cleanMobile}`), {
                         name: name,
                         branch: branch,
+                        mobile: cleanMobile,
                         pin: pinInput,
                         createdAt: new Date().toISOString()
                     });
