@@ -200,8 +200,8 @@ function PrintContent() {
                 </div>
 
                 {/* Mobile note */}
-                <div className="md:hidden mt-3 text-xs text-red-500 bangla">
-                    মোবাইলের ক্ষেত্রে প্রিন্ট দেওয়া বা পিডিএফ ডাউনলোডের ক্ষেত্রে Orientation = Landscape করে নিন
+                <div className="md:hidden mt-3 text-sm text-red-500 bangla">
+                    বি.দ্র: মোবাইল থেকে পিডিএফ ডাউনলোড বা প্রিন্ট দেওয়ার ক্ষেত্রে সেটিং থেকে Orientation = Landscape করে নিন।
                 </div>
 
             </div>
