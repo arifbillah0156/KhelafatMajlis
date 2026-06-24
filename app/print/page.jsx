@@ -264,7 +264,7 @@ function PrintContent() {
                     }
                     .print-table .text-col {
                         width: 60px !important; 
-                        text-align: left;
+                        text-align: center;
                     }
                     .print-table tbody tr:nth-child(even) td {
                         background-color: #f5f5f5 !important;
